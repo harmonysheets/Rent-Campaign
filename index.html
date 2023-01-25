@@ -1,0 +1,97 @@
+<!--
+ * 
+ * Harmony Sheets®
+ * 📧 support@harmonysheets.com
+ * 🌐 harmonysheets.com
+ * ©2023 Harmony® Codes All Rights Reserved.
+ * Strictly forbidden to copy any of the code.
+ * Code created for Breslev Rent Campaign.
+ * 
+-->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Rent Campaign</title>
+    <link rel="icon" type="image/x-icon" href="https://i.ibb.co/hLtsJQs/Rent-PNG.png">
+    <style type="text/css">
+      body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+      }
+      #content {
+        position:absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: 0px; 
+      }
+    </style>
+  </head>
+
+  <body id="body">
+    <div id="welcomePage" style="text-align:center;">
+      <img src="https://i.ibb.co/hLtsJQs/Rent-PNG.png" alt="Rent Campaign Logo" width="200">
+      <h1>Breslev Rent Campaign</h1>
+      <br>
+      <h3 id="loadingWebApp"></h3>
+    </div>
+    <iframe id="webapp" title="Rent Campaign" width="100%" height="100%" frameborder="0" marginheight="0" marginwidth="0" allow="clipboard-write">Loading…</iframe>
+  </body>
+  
+  <script>
+    // var to keep track when to remind again for update
+    var remindForUpdate = 0;
+    
+    checkForSoftwareUpdate(); // system starting first time to set the iframes src
+    setInterval(checkForSoftwareUpdate, 5000); // running the checkSoftwareUpdate every 5 seconds.
+    
+    function checkForSoftwareUpdate(){
+      const iframeSrc = document.getElementById('webapp').src;
+      // fetching the new web app url
+      fetch('https://script.google.com/macros/s/AKfycbxc6_ZjLrQB1Lwfc86nAfzpG_JazS9H4AGV1AgpoelUugvwXuCcuwn7-2FImVrzn_Xi/exec')
+        .then(response => response.text())
+        .then(data => {
+          var webappUrl = data.split(',')[0];
+          var softwareUpdateSetting = data.split(',')[1];
+
+          if /** iframe empty when started first time */ (iframeSrc == '') {
+            reloadWebapp(webappUrl, true);
+          } else if /** url is updated and setting set to force update */ (webappUrl !== iframeSrc && softwareUpdateSetting === 'Force'){
+            reloadWebapp(webappUrl);
+          } else if /** url is updated and setting set to not force update */ (webappUrl !== iframeSrc && softwareUpdateSetting !== 'Force'){
+            if(remindForUpdate <= 0){
+              let text = "There is a software update available!\nDo you want to update now?\nIf you choose 'Cancel' the system will remind you in an hour.";
+              if (confirm(text) == true) {
+                reloadWebapp(webappUrl);
+              } else {
+                remindForUpdate = 3600000;
+              }
+            } else {
+              remindForUpdate -= 5000;
+            }
+          }
+        });
+      
+    }
+    
+    function reloadWebapp(newLink, deleteWelcome){
+      remindForUpdate = 0;
+      console.log('reload webapp')
+      document.getElementById('webapp').src = newLink;
+      
+      if (deleteWelcome){
+        document.getElementById('loadingWebApp').textContent = 'Loading Web App...';
+        setTimeout(function () {
+          document.getElementById('welcomePage').remove();
+        }, 3000);
+      }
+    }
+  
+  </script>
+</html>
