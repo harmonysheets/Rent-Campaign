@@ -54,7 +54,7 @@
     function checkForSoftwareUpdate(){
       const iframeSrc = document.getElementById('webapp').src;
       // fetching the new web app url
-      fetch('https://script.google.com/macros/s/AKfycbxc6_ZjLrQB1Lwfc86nAfzpG_JazS9H4AGV1AgpoelUugvwXuCcuwn7-2FImVrzn_Xi/exec')
+      fetch('https://script.google.com/macros/s/AKfycbz0cWIRMul19Rh8PAgPLOG9Il73mqodK2IFDF432lb_IFOgFodz7R34LZYktKgvsCRi/exec')
         .then(response => response.text())
         .then(data => {
           var webappUrl = data.split(',')[0];
