@@ -38,9 +38,11 @@
         }
 
         .loader {
-            border: 20px solid #f3f3f3; /* was 16px */
+            border: 20px solid #f3f3f3;
+            /* was 16px */
             /* Light grey */
-            border-top: 20px solid #441418; /* was 16px */
+            border-top: 20px solid #441418;
+            /* was 16px */
             /* Dark Green */
             border-radius: 50%;
             width: 320px;
@@ -73,21 +75,32 @@
                 transform: rotate(0deg);
             }
         }
+
+        #loadingDiv {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            min-height: 100vh;
+            /* Ensures the div takes the full viewport height */
+            width: 100%;
+        }
     </style>
 </head>
 
 <body id="body">
     <div id="loadingDiv" style="text-align:center; min-height: 100%; height: 100%;" width="100%" height="100%">
-        <img src="https://i.ibb.co/hLtsJQs/Rent-PNG.png" alt="Rent Campaign Logo" width="400">
-        <br>
-        <h2 id="loadingWebApp" style="color: #441418;" class="mb-5">Loading Web App...</h2>
+        <!-- <img src="https://i.ibb.co/hLtsJQs/Rent-PNG.png" alt="Rent Campaign Logo" width="400">
+        <br> -->
+        <!-- <h2 id="loadingWebApp" style="color: #441418;" class="mb-5">Loading Web App...</h2> -->
         <div class="loader m-auto">
             <!-- loader source https://www.geeksforgeeks.org/how-to-set-logo-inside-loader-using-css/ -->
-            <img src="https://i.ibb.co/hLtsJQs/Rent-PNG.png" />
+            <img src="https://i.ibb.co/hLtsJQs/Rent-PNG.png" alt="Loading Web App..." />
         </div>
     </div>
     <iframe id="webapp" class="d-none" title="Rent Campaign" width="100%" height="100%" frameborder="0" marginheight="0"
-        marginwidth="0" allow="clipboard-write">Loading…</iframe>
+        marginwidth="0"
+        allow="clipboard-write">Loading…</iframe>
 
 </body>
 
@@ -100,30 +113,44 @@
 
     function checkForSoftwareUpdate() {
         const iframeSrc = document.getElementById('webapp').src;
-        // fetching the new web app url
-        fetch('https://script.google.com/macros/s/AKfycbz0cWIRMul19Rh8PAgPLOG9Il73mqodK2IFDF432lb_IFOgFodz7R34LZYktKgvsCRi/exec')
-            .then(response => response.text())
-            .then(data => {
-                var webappUrl = data.split(',')[0];
-                var softwareUpdateSetting = data.split(',')[1];
+        if (iframeSrc == '') {
+            try {
+                var src = localStorage.getItem('src');
+                reloadWebapp(src, true)
+            } catch {
 
-                if /** iframe empty when started first time */ (iframeSrc == '') {
-                    reloadWebapp(webappUrl, true);
-                } else if /** url is updated and setting set to force update */ (webappUrl !== iframeSrc && softwareUpdateSetting === 'Force') {
-                    reloadWebapp(webappUrl);
-                } else if /** url is updated and setting set to not force update */ (webappUrl !== iframeSrc && softwareUpdateSetting !== 'Force') {
-                    if (remindForUpdate <= 0) {
-                        let text = "There is a software update available!\nDo you want to update now?\nIf you choose 'Cancel' the system will remind you in an hour.";
-                        if (confirm(text) == true) {
-                            reloadWebapp(webappUrl);
+            }
+        }
+        // fetching the new web app url
+        try {
+            fetch('https://script.google.com/macros/s/AKfycbz0cWIRMul19Rh8PAgPLOG9Il73mqodK2IFDF432lb_IFOgFodz7R34LZYktKgvsCRi/exec')
+                .then(response => response.text())
+                .then(data => {
+                    var webappUrl = data.split(',')[0];
+                    console.log(webappUrl)
+                    localStorage.setItem('src', webappUrl)
+                    var softwareUpdateSetting = data.split(',')[1];
+
+                    if /** iframe empty when started first time */ (iframeSrc == '') {
+                        reloadWebapp(webappUrl, true);
+                    } else if /** url is updated and setting set to force update */ (webappUrl !== iframeSrc && softwareUpdateSetting === 'Force') {
+                        reloadWebapp(webappUrl);
+                    } else if /** url is updated and setting set to not force update */ (webappUrl !== iframeSrc && softwareUpdateSetting !== 'Force') {
+                        if (remindForUpdate <= 0) {
+                            let text = "There is a software update available!\nDo you want to update now?\nIf you choose 'Cancel' the system will remind you in an hour.";
+                            if (confirm(text) == true) {
+                                reloadWebapp(webappUrl);
+                            } else {
+                                remindForUpdate = 3600000;
+                            }
                         } else {
-                            remindForUpdate = 3600000;
+                            remindForUpdate -= 5000;
                         }
-                    } else {
-                        remindForUpdate -= 5000;
                     }
-                }
-            });
+                });
+        } catch (e) {
+            console.error(e)
+        }
 
     }
 
@@ -143,8 +170,11 @@
     }
 
     document.getElementById('webapp').onload = function () {
-        document.getElementById('loadingDiv').classList.add('d-none');
-        document.getElementById('webapp').classList.remove('d-none');
+        console.log('loaded')
+        setTimeout(function () {
+            document.getElementById('loadingDiv').classList.add('d-none');
+            document.getElementById('webapp').classList.remove('d-none');
+        }, 2000); // 5000 milliseconds = 5 seconds
     };
 
 </script>
